@@ -3,6 +3,7 @@
 ## Usage
 - (推荐 `Recommend`)通过 RSS 进行订阅 
 **Subscribe via RSS**
+[CN Version](https://rss-evan.herokuapp.com/leetcode/todayrecord/cn) [EN Version](https://rss-evan.herokuapp.com/leetcode/todayrecord/en)
 <center class="half">
     <img src="https://raw.githubusercontent.com/NavePnow/leetcode-today-record/main/img/rss-cn.png" width="50%"/><img src="https://raw.githubusercontent.com/NavePnow/leetcode-today-record/main/img/rss-en.png" width="50%"/>
 </center>
@@ -35,6 +36,10 @@ Give a ⭐️ if this project helped you!
 ## 📖 Reference
 [Leetcode CN Site](https://leetcode-cn.com)
 [Leetcode EN Site](https://leetcode.com)
+
+## 🙏 Acknowledgments
+* [RSSHub](https://docs.rsshub.app)
+
 
 ## 📝 License
 
