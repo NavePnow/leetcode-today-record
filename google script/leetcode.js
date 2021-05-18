@@ -70,12 +70,14 @@ function getDetails(questionTitleSlug, date) {
         var description;
         if (content.match(description_pattern)) {
             description = content.match(description_pattern)[0];
+            console.log(description);
             description = description.replaceAll(/<font[\s\S]*?>/g, "");
             description = description.replaceAll("</font>", "");
             description = description.replaceAll(/<p><img[\s\S]*?<\/p>/g, "");
-            description = description.replaceAll("<p>&nbsp;</p>\n<p><strong>", "");
+            description = description.replaceAll(/<p>&nbsp;<\/p>[\s\S]*?<p><strong>/g, "");
             description = description.replaceAll("<p>&nbsp;</p>\n\n<p><strong>", "");
-            description = description.replaceAll("<p>&nbsp;</p>\n<p><b>", "");
+            console.log(description);
+            description = description.replaceAll(/<p>&nbsp;<\/p>[\s\S]*?<p><b>/g, "");
             description = description.replaceAll("<p>&nbsp;</p>\n\n<p><b>", "");
             description = description.replaceAll("&nbsp;", " ");
             description = description.replaceAll("<p>", "");
@@ -90,6 +92,7 @@ function getDetails(questionTitleSlug, date) {
             description = description.replaceAll("</sup>", "");
             // description = deleteDoubleBr(description);
         }
+        console.log(description);
         description = '<strong>Description \n</strong>' + description;
 
         var example_pattern_1 = /<strong>Input[\s\S]*?(?=<\/pre>)/g;
