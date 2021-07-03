@@ -12,7 +12,7 @@ var headers = {
 
 
 function getLeetcode() {
-    var recordPayload = "{\"operationName\": \"questionOfToday\", \"variables\":{}, \"query\":\"query questionOfToday {  todayRecord {    question {      questionFrontendId          questionTitleSlug      __typename    }    lastSubmission {      id       __typename   }    date    userStatus    __typename  }}\"}";
+    var recordPayload = "{\"query\":\"    query questionOfToday {  todayRecord {    date    userStatus    question {      questionId      frontendQuestionId: questionFrontendId      difficulty      title      titleCn: translatedTitle      titleSlug      paidOnly: isPaidOnly      freqBar      isFavor      acRate      status      solutionNum      hasVideoSolution      topicTags {        name        nameTranslated: translatedName        id      }      extra {        topCompanyTags {          imgUrl          slug          numSubscribed        }      }    }    lastSubmission {      id    }  }}    \",\"variables\":{}}";
 
     var options = {
         'method': 'post',
@@ -27,12 +27,11 @@ function getLeetcode() {
     } else {
         var data = JSON.parse(response).data.todayRecord[0];
         var date = data.date;
-        var questionTitleSlug = data.question.questionTitleSlug;
-        date = '<b>Leetcode ' + date + "</b>";
+        var questionTitleSlug = data.question.titleSlug;
+        date = '<b>Leetcode-cn.com ' + date + "</b>";
 
         getDetails(questionTitleSlug, date);
     }
-
 }
 
 String.prototype.replaceAll = function (FindText, RepText) {
@@ -41,7 +40,7 @@ String.prototype.replaceAll = function (FindText, RepText) {
 }
 
 function getDetails(questionTitleSlug, date) {
-    var detailPayload = "{\"operationName\": \"questionData\", \"variables\":{\"titleSlug\": \"" + questionTitleSlug + "\"}, \"query\": \"query questionData($titleSlug: String!) {  question(titleSlug: $titleSlug) {    questionId    questionFrontendId    categoryTitle    boundTopicId    title    titleSlug    content    translatedTitle    translatedContent    isPaidOnly    difficulty    likes    dislikes    isLiked    similarQuestions    contributors {      username      profileUrl      avatarUrl      __typename    }    langToValidPlayground    topicTags {      name      slug      translatedName      __typename    }    companyTagStats    codeSnippets {      lang      langSlug      code      __typename    }    stats    hints    solution {      id      canSeeDetail      __typename    }    status    sampleTestCase    metaData    judgerAvailable    judgeType    mysqlSchemas    enableRunCode    envInfo    book {      id      bookName      pressName      source      shortDescription      fullDescription      bookImgUrl      pressImgUrl      productUrl      __typename    }    isSubscribed    isDailyQuestion    dailyRecordStatus    editorType    ugcQuestionId    style    exampleTestcases    __typename  }}\"}";
+    var detailPayload = "{\"operationName\": \"questionData\", \"variables\":{\"titleSlug\": \"" + questionTitleSlug + "\"}, \"query\": \"query questionData($titleSlug: String!) {  question(titleSlug: $titleSlug) {    questionId    questionFrontendId    categoryTitle    boundTopicId    title    titleSlug    content    translatedTitle    translatedContent    isPaidOnly    difficulty    likes    dislikes    isLiked    similarQuestions    contributors {      username      profileUrl      avatarUrl      __typename    }    langToValidPlayground    topicTags {      name      slug      translatedName      __typename    }    companyTagStats    codeSnippets {      lang      langSlug      code      __typename    }    stats    hints    solution {      id      canSeeDetail      __typename    }    status    sampleTestCase    metaData    judgerAvailable    judgeType    mysqlSchemas    enableRunCode    envInfo    book {      id      bookName      pressName      source      shortDescription      fullDescription      bookImgUrl      pressImgUrl      productUrl      __typename    }    isSubscribed    isDailyQuestion    dailyRecordStatus    editorType    ugcQuestionId    style    exampleTestcases    __typename  }}\"}";    
     var options = {
         'method': 'post',
         'headers': headers,
@@ -60,28 +59,30 @@ function getDetails(questionTitleSlug, date) {
         var en_link = "https://leetcode.com/problems/" + questionTitleSlug;
         var cn_solution_link = cn_link + "/solution";
         var en_solution_link = en_link + "/solution";
-
-        var content = data.content;
+        
+        var content = data.translatedContent;
         var difficulty = data.difficulty;
         if (difficulty == 'Easy') difficulty = '🟢';
         else if (difficulty == 'Medium') difficulty = '🟡';
         else difficulty = '🔴';
-        var description_pattern = /[\s\S]*?(?=Example)/g;
+        var description_pattern = /[\s\S]*?(?=示例)/g;
         var description;
         if (content.match(description_pattern)) {
             description = content.match(description_pattern)[0];
             console.log(description);
             description = description.replaceAll(/<font[\s\S]*?>/g, "");
             description = description.replaceAll("</font>", "");
-            description = description.replaceAll(/<p><img[\s\S]*?<\/p>/g, "");
+            description = description.replaceAll(/<img[\s\S]*?\/>/g, "");
             description = description.replaceAll(/<p>&nbsp;<\/p>[\s\S]*?<p><strong>/g, "");
             description = description.replaceAll("<p>&nbsp;</p>\n\n<p><strong>", "");
-            console.log(description);
             description = description.replaceAll(/<p>&nbsp;<\/p>[\s\S]*?<p><b>/g, "");
             description = description.replaceAll("<p>&nbsp;</p>\n\n<p><b>", "");
             description = description.replaceAll("&nbsp;", " ");
             description = description.replaceAll("<p>", "");
             description = description.replaceAll("</p>", "");
+            description = description.replaceAll("<strong>", "");
+            description = description.replaceAll("</strong>", "");
+            // description = description.replaceAll("<pre>", "");
             description = description.replaceAll("<ul>", "");
             description = description.replaceAll("</ul>", "");
             description = description.replaceAll("<li>", "");
@@ -90,24 +91,29 @@ function getDetails(questionTitleSlug, date) {
             description = description.replaceAll("</ol>", "");
             description = description.replaceAll("<sup>", "");
             description = description.replaceAll("</sup>", "");
-            // description = deleteDoubleBr(description);
+            description = description.replaceAll("<sub>", "");
+            description = description.replaceAll("</sub>", "");
+            description = '<strong>Description \n</strong>' + description;
         }
-        console.log(description);
-        description = '<strong>Description \n</strong>' + description;
 
-        var example_pattern_1 = /<strong>Input[\s\S]*?(?=<\/pre>)/g;
-        var example_pattern_2 = /<b>Input[\s\S]*?(?=<\/pre>)/g;
+        var example_pattern_1 = /<strong>输入[\s\S]*?(?=<\/pre>)/g;
+        var example_pattern_2 = /<b>输入[\s\S]*?(?=<\/pre>)/g;
         var example;
         if (content.match(example_pattern_1)) {
             example = content.match(example_pattern_1)[0];
         } else if (content.match(example_pattern_2)) {
             example = content.match(example_pattern_2)[0];
         }
-        example = example.replaceAll("&nbsp;", " ");
-        example = example.replaceAll("</p>", "");
-        example = example.replaceAll(/<span id=[\s\S]*?">/g, "");
-        example = example.replaceAll("</span>", "");
-        example = '<strong>Example</strong>\n<pre>' + example + '</pre>';
+        if(example){
+            example = example.replaceAll("&nbsp;", " ");
+            example = example.replaceAll("</p>", "");
+            example = example.replaceAll(/<span id=[\s\S]*?">/g, "");
+            example = example.replaceAll("</span>", "");
+            example = example.replaceAll("<sup>", "");
+            example = example.replaceAll("</sup>", "");
+            example = '<strong>Example</strong>\n<pre>' + example + '</pre>';
+        }
+        
 
         var pattern_image = /src="[\s\S]*?(?=" style)/g;
         var image;
@@ -140,10 +146,6 @@ function originalData(estring, cn_link, en_link, cn_solution_link, en_solution_l
             "[" +
             "{\"text\":\"CN\", \"url\" : \"" + cn_link + "\"}," +
             "{\"text\":\"CN Solution\", \"url\" : \"" + cn_solution_link + "\"}" +
-            "]," +
-            "[" +
-            "{\"text\":\"EN\", \"url\" : \"" + en_link + "\"}," +
-            "{\"text\":\"EN Solution\", \"url\" : \"" + en_solution_link + "\"}" +
             "]" +
             "]}"
     };
